@@ -95,7 +95,7 @@ The downloader uses it as the complete list of certificates that must be downloa
 
 The sorter uses it as the list of PDF files that must be renamed and organised.
 
-The codes may be written with or without the `.pdf` extension.
+The codes must be written without the `.pdf` extension.
 
 ### `Data`
 
