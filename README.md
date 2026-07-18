@@ -1,22 +1,19 @@
-# Student Certificate Download Automation
+# Student Certificate Download and Sorting Automation
 
-A Python desktop application that automates the repetitive process of entering student verification codes and downloading certificates from the Armenian government verification website.
+This project contains two Python programs that automate the processing of student certificates.
 
-The program was created for a teacher who needed to download more than 160 student certificates each year. It has been used for three consecutive annual certificate-processing cycles.
+The first program enters student verification codes into the Armenian government verification website and downloads the corresponding certificates.
 
-## Purpose
+The second program matches the downloaded PDF filenames with student records stored in an Excel file, renames each certificate using the student's name, and separates the certificates into folders according to class.
 
-Without automation, each student verification code must be entered manually, and every certificate must be downloaded separately. Afterward, the user must check which certificates were not downloaded successfully and repeat the process for those students.
+The system was created for a teacher who needed to process more than 160 student certificates each year. It has been used during three consecutive annual certificate-processing cycles.
 
-This application:
+## Main Workflow
 
-- reads student verification codes from `TextData.txt`;
-- checks which certificate files already exist in the `Files` folder;
-- identifies the certificates that are still missing;
-- creates a new data file containing only the missing verification codes;
-- automatically enters each missing code into the verification website;
-- downloads the corresponding certificate;
-- allows unsuccessful downloads to be retried without repeating completed downloads.
+The complete process consists of two stages:
+
+1. Download the certificates using the student verification codes.
+2. Rename and organise the downloaded certificates using student information from Excel.
 
 ## Technologies
 
@@ -24,22 +21,24 @@ This application:
 - PyAutoGUI
 - pandas
 - Tkinter
-- File-system processing
+- openpyxl
 - Browser-interface automation
-- Text and CSV data processing
+- Excel file processing
+- Text and CSV file processing
+- File-system automation
 
 ## Requirements
 
 - Python 3
 - Internet access
 - A web browser
-- A 1920 × 1080 display resolution, or a sufficiently similar setup
+- A display setup compatible with the configured screen coordinates
 - The required Python packages
 
-Install the required packages using:
+Install the packages using:
 
 ```bash
-pip install pandas pyautogui
+pip install pandas pyautogui openpyxl
 ```
 
 Tkinter is normally included with Python.
@@ -48,16 +47,35 @@ Tkinter is normally included with Python.
 
 ```text
 Student-Certificate-Download-Automation/
-├── main.py
+├── certificate_downloader.py
+├── certificate_sorter.py
 ├── README.md
 ├── requirements.txt
 ├── TextData.txt
-└── Files/
+├── Data
+├── Files/
+├── Students/
+│   └── data.xlsx
+└── Sorted_pdfs/
 ```
 
-### `main.py`
+## Files and Folders
 
-Contains the complete application and graphical user interface.
+### `certificate_downloader.py`
+
+The first program checks which certificates are missing and automatically enters the missing verification codes into the government verification website.
+
+### `certificate_sorter.py`
+
+The second program matches downloaded PDF files with the student records in the Excel file.
+
+It then:
+
+- finds the student connected to each certificate ID;
+- renames the PDF using the student's full name;
+- creates a separate folder for each class;
+- copies the renamed certificate into the correct class folder;
+- preserves the original PDF files.
 
 ### `TextData.txt`
 
@@ -71,53 +89,109 @@ EXAMPLE-CODE-002
 EXAMPLE-CODE-003
 ```
 
-Only fictional example codes should be included in the public GitHub repository.
+The same file is used by both programs.
+
+The downloader uses it as the complete list of certificates that must be downloaded.
+
+The sorter uses it as the list of PDF files that must be renamed and organised.
+
+The codes may be written with or without the `.pdf` extension.
+
+### `Data`
+
+This file is automatically created by the first program.
+
+It contains only the verification codes whose certificates have not yet been downloaded.
 
 ### `Files`
 
-Contains the certificates that have already been downloaded should be included in the public GitHub repository.
+Contains all successfully downloaded certificate PDF files.
 
-### `Files`
+The filename of each PDF must be its student verification code.
 
-Contains.
+Example:
 
-The application compares the filenames in this folder with the codes in `TextData.txt` to identify certificates that are still missing.
+```text
+EXAMPLE-CODE-001.pdf
+EXAMPLE-CODE-002.pdf
+```
 
-## Instructions
+### `Students/data.xlsx`
+
+Contains the student information used to rename and organise the certificates.
+
+The Excel file must contain the following exact column names:
+
+```text
+First name
+Middle name
+Last name
+Class
+ID
+```
+
+The value in the `ID` column must match the filename of the corresponding PDF.
+
+Example:
+
+```text
+Excel ID:       EXAMPLE-CODE-001
+PDF filename:   EXAMPLE-CODE-001.pdf
+```
+
+### `Sorted_pdfs`
+
+Contains the renamed and organised certificates.
+
+The program creates a separate folder for every class.
+
+Example:
+
+```text
+Sorted_pdfs/
+├── 10A/
+│   ├── Anna Maria Smith.pdf
+│   └── David John Brown.pdf
+└── 11B/
+    ├── Edgar Mikaelyan.pdf
+    └── Michael Green.pdf
+```
+
+## Stage 1: Downloading the Certificates
 
 ### 1. Prepare the files
 
-Empty the `Files` folder.
+Empty the `Files` folder before beginning a new annual certificate-processing cycle.
 
-Place all required verification codes inside `TextData.txt`, with one code on each line.
+Place all student verification codes in `TextData.txt`, with one code on each line.
 
-Do not change the names or contents of the program files.
+Do not modify the program files.
 
 ### 2. Open the verification website
 
-Open the following website in a browser:
+Open the following website:
 
 ```text
 https://verify.e-gov.am/am/
 ```
 
-Then run the Python program:
+Run the certificate downloader:
 
 ```bash
-python main.py
+python certificate_downloader.py
 ```
 
-### 3. Prepare the data
+### 3. Prepare the missing-code data
 
-Press the **Prepare the data** button.
+Press **Prepare the data**.
 
-The application will compare the codes in `TextData.txt` with the certificate files already present in the `Files` folder.
+The program compares the codes in `TextData.txt` with the PDF filenames already present in the `Files` folder.
 
-It will then display the number of certificates that are still missing.
+It then displays how many certificates are still missing.
 
-### 4. Start the automated download process
+### 4. Begin the automated download
 
-When the number of missing certificates is not zero, press **Compile**.
+When the number of missing files is not zero, press **Compile**.
 
 Immediately switch to the browser tab containing:
 
@@ -127,84 +201,161 @@ https://verify.e-gov.am/am/
 
 Press `F11`, or `Fn + F11`, to enter fullscreen mode.
 
-The program waits only five seconds before beginning, so the browser tab must be opened quickly.
+The program waits five seconds before beginning, so the browser tab must be opened quickly.
 
-Do not move the mouse or use the keyboard while the automation is running.
+Do not move the mouse or use the keyboard while the program is controlling the browser.
 
 ### 5. Move the downloaded files
 
-After the automated process finishes, move all downloaded certificate files into the `Files` folder.
+After the program finishes, move all downloaded certificate PDFs into the `Files` folder.
 
-### 6. Check for missing certificates
+### 6. Check for unsuccessful downloads
 
 Press **Prepare the data** again.
 
-The application will compare the downloaded files with the complete list of verification codes and report how many certificates are still missing.
+The program will check which certificates are still missing.
 
-When some certificates are still missing, repeat the process.
+When some files are missing, repeat the download process. The program will enter only the missing codes instead of repeating every completed download.
 
-The program will attempt to download only the missing certificates and will not repeat certificates that have already been downloaded successfully.
+Continue until the missing-file count reaches zero.
 
-Continue until the missing certificate count reaches zero.
+## Stage 2: Renaming and Organising the Certificates
+
+Before running the second program, confirm that:
+
+- the downloaded PDFs are inside the `Files` folder;
+- the PDF filenames are the corresponding student IDs;
+- `TextData.txt` contains the IDs or PDF filenames to be processed;
+- `Students/data.xlsx` contains the required student information;
+- the values in the Excel `ID` column match the PDF filenames.
+
+Run the certificate sorter:
+
+```bash
+python certificate_sorter.py
+```
+
+The program will:
+
+1. Read the student records from `Students/data.xlsx`.
+2. Read the required certificate filenames from `TextData.txt`.
+3. Find each PDF inside the `Files` folder.
+4. Match the PDF filename with the Excel `ID` column.
+5. Build the student's full name in this order:
+
+```text
+First name Middle name Last name
+```
+
+6. Create a folder for the student's class inside `Sorted_pdfs`.
+7. Copy and rename the certificate inside the correct class folder.
+8. Display how many certificates were processed successfully.
+9. Report any missing PDF files or IDs without matching Excel records.
+
+The original certificate files inside `Files` are preserved.
+
+## Duplicate Names
+
+When a certificate with the same student name already exists in a class folder, the program does not overwrite it.
+
+Instead, it creates filenames such as:
+
+```text
+Student Name.pdf
+Student Name (2).pdf
+Student Name (3).pdf
+```
+
+Therefore, `Sorted_pdfs` should normally be emptied before beginning a new complete processing cycle.
 
 ## Important Notes
 
-- Do not make changes to the program files.
-- Keep the verification website open in fullscreen mode while the program is running.
-- Do not move the mouse or use the keyboard during the automated process.
-- The program uses screen coordinates based on a 1920 × 1080 reference resolution.
-- Changes to browser zoom, display scaling, website layout, window position, or screen resolution may cause the program to click incorrect locations.
-- The program may require modification if the verification website changes its interface.
-- The five-second delay begins immediately after pressing **Compile**.
+- Do not modify the program files while processing certificates.
+- Do not move the mouse or use the keyboard while browser automation is running.
+- Keep the government verification website in fullscreen mode during downloads.
+- The download program uses coordinates based on a 1920 × 1080 reference resolution.
+- Browser zoom, display scaling, website layout, window position, or screen resolution may affect the browser automation.
+- The download program may need adjustment if the government website changes its interface.
+- Keep the Excel `ID` column formatted as text when IDs contain leading zeroes.
+- The Excel column names must match the required names exactly.
+- PDF filenames must match the corresponding student IDs.
+- The sorter processes only the certificates listed in `TextData.txt`.
 
-## How the Missing-File Check Works
+## Error Handling
 
-The application reads the complete list of verification codes from `TextData.txt`.
+The sorting program reports several possible problems:
 
-It then reads the filenames of certificates already present in the `Files` folder.
+- Excel file not found;
+- PDF folder not found;
+- `TextData.txt` not found;
+- required Excel column missing;
+- student row with an empty ID;
+- student row with no name;
+- duplicate student ID;
+- PDF file not found;
+- PDF filename without a matching student ID.
 
-Codes that do not have a corresponding downloaded file are collected into a new data file. During the next automated run, only those missing codes are entered into the verification website.
+The program prints a summary when processing is finished:
 
-This makes the process recoverable when some downloads fail because of connection problems, browser delays, or website errors.
+```text
+Finished.
+Successfully processed: ...
+Files not found: ...
+Files without matching student IDs: ...
+Output folder: Sorted_pdfs
+```
 
 ## Impact
 
-The application has been used by a teacher for three consecutive years.
+The system has been used by a teacher for three consecutive years.
 
-It supports the annual processing of more than 160 student certificates and reduces the amount of repetitive manual work required.
+It supports the annual processing of more than 160 student certificates. Across three annual cycles, it has supported the processing of at least 480 certificates.
 
-Instead of manually entering every verification code, checking every download, and repeating the entire process when some certificates are missing, the user can automatically process the codes and retry only unsuccessful downloads.
+The project reduces repetitive manual work by automating:
 
-Across three annual cycles, the application has supported the processing of at least 480 certificates.
+- entering student verification codes;
+- downloading certificates;
+- identifying unsuccessful downloads;
+- retrying only missing certificates;
+- matching certificate IDs with student records;
+- renaming certificates;
+- creating class folders;
+- sorting certificates into the correct folders.
 
 ## Limitations
 
-The application relies on browser-interface automation rather than direct communication with the website's server.
+The certificate downloader uses browser-interface automation rather than direct communication with the website server.
 
-Because of this:
+Because of this, it depends on:
 
-- it depends on the position of buttons and input fields;
-- it may fail when the website loads slowly;
-- it depends on the selected screen resolution and browser layout;
-- it requires the user to move downloaded files into the `Files` folder;
-- it may need several runs when some downloads are unsuccessful.
+- the position of website buttons and fields;
+- the speed at which the website loads;
+- the screen resolution;
+- the browser layout;
+- the browser being in fullscreen mode.
 
-These limitations are partially addressed by the missing-file detection system, which allows unsuccessful downloads to be identified and repeated.
+The missing-file checking system helps manage unsuccessful downloads by allowing only missing certificates to be retried.
+
+The sorting program requires the PDF filenames and Excel IDs to match correctly.
 
 ## Privacy
 
 The public repository must not contain:
 
 - real student names;
-- real verification codes;
+- real student verification codes;
+- real student IDs;
 - downloaded certificates;
+- private Excel records;
 - passwords;
 - browser cookies;
 - login credentials;
-- personal or confidential information.
+- other personal or confidential information.
 
-Only fictional sample data should be included in `TextData.txt`, and the public `Files` folder should remain empty.
+The public `TextData.txt` and Excel file should contain only fictional example data.
+
+The public `Files` and `Sorted_pdfs` folders should not contain real certificates.
 
 ## Author
 
-Developed by Edgar Mikaelyan as a practical automation tool for repeated real-world use.
+Developed by Edgar Mikaelyan as a practical automation system for repeated real-world use.
