@@ -225,7 +225,7 @@ Before running the second program, confirm that:
 
 - the downloaded PDFs are inside the `Files` folder;
 - the PDF filenames are the corresponding student IDs;
-- `TextData.txt` contains the IDs or PDF filenames to be processed;
+- `TextData.txt` contains the IDs to be processed;
 - `Students/data.xlsx` contains the required student information;
 - the values in the Excel `ID` column match the PDF filenames.
 
